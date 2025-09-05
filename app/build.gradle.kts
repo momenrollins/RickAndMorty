@@ -59,8 +59,13 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // Dependency Injection
-    implementation("com.google.dagger:hilt-android:2.56.2")
-    ksp("com.google.dagger:hilt-android-compiler:2.56.2")
+    implementation("com.google.dagger:hilt-android:2.57.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+    ksp("com.google.dagger:hilt-android-compiler:2.57.1")
+
+    // Image Loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

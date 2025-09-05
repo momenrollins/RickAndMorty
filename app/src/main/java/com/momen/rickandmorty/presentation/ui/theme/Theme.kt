@@ -1,4 +1,4 @@
-package com.momen.rickandmorty.presentation.theme
+package com.momen.rickandmorty.presentation.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
