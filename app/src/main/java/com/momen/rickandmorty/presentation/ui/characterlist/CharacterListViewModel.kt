@@ -114,7 +114,8 @@ class CharacterListViewModel @Inject constructor(
     }
 
     private fun loadMoreCharacters() {
-        if (_state.value.isLoadingMore || !_state.value.hasNextPage || _state.value.error.isNotBlank()) return
+        Log.d("TAG", "loadMoreCharacters: isLoadingMore = ${_state.value.isLoadingMore} hasNextPage = ${_state.value.hasNextPage} error = ${_state.value.error} characters = ${_state.value.characters}")
+        if (_state.value.isLoadingMore || !_state.value.hasNextPage || _state.value.error.isNotBlank() || _state.value.characters.isEmpty()) return
 
         val nextPage = _state.value.currentPage + 1
         _state.value = _state.value.copy(currentPage = nextPage)
