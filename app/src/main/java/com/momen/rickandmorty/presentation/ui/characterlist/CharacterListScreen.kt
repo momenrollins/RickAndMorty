@@ -15,7 +15,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.momen.rickandmorty.presentation.ui.characterlist.components.CharacterListItem
+import com.momen.rickandmorty.presentation.ui.characterlist.components.LoadingItem
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 
+@OptIn(FlowPreview::class)
 @Composable
 fun CharacterListScreen(
     navController: NavController,
@@ -25,10 +30,15 @@ fun CharacterListScreen(
     val listState = rememberLazyListState()
 
     LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
-            .collect { lastVisibleIndex ->
-                if (lastVisibleIndex != null &&
-                    lastVisibleIndex >= state.characters.size - 3 &&
+        snapshotFlow {
+            val layoutInfo = listState.layoutInfo
+            val totalItemsCount = layoutInfo.totalItemsCount
+            val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            Pair(totalItemsCount, lastVisibleItemIndex)
+        }
+            .distinctUntilChanged()
+            .collect { (totalItemsCount, lastVisibleItemIndex) ->
+                if (lastVisibleItemIndex >= totalItemsCount - 3 && // within last 3
                     !state.isLoadingMore &&
                     state.searchQuery.isBlank()
                 ) {
@@ -36,6 +46,8 @@ fun CharacterListScreen(
                 }
             }
     }
+
+
 
     Column(
         modifier = Modifier
@@ -52,8 +64,11 @@ fun CharacterListScreen(
                     onItemClick = {}
                 )
             }
-
+            if (state.isLoadingMore) {
+                item {
+                    LoadingItem()
+                }
+            }
         }
-
     }
 }
