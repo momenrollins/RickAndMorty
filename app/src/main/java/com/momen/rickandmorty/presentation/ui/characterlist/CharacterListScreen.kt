@@ -97,7 +97,7 @@ fun CharacterListScreen(
                     textAlign = TextAlign.Center,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { viewModel.onEvent(CharacterListEvent.Refresh) }) {
+                Button(onClick = { viewModel.onEvent(CharacterListEvent.Retry) }) {
                     Text("Retry")
                 }
             }

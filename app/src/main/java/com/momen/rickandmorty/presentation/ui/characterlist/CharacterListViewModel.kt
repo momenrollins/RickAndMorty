@@ -22,7 +22,8 @@ data class CharacterListState(
     val error: String = "",
     val searchQuery: String = "",
     val currentPage: Int = 1,
-    val isLoadingMore: Boolean = false
+    val isLoadingMore: Boolean = false,
+    val hasNextPage: Boolean = false
 )
 
 @HiltViewModel
@@ -49,8 +50,8 @@ class CharacterListViewModel @Inject constructor(
                 loadMoreCharacters()
             }
 
-            is CharacterListEvent.Refresh -> {
-                refreshCharacters()
+            is CharacterListEvent.Retry -> {
+                retryCharacters()
             }
         }
     }
@@ -61,11 +62,12 @@ class CharacterListViewModel @Inject constructor(
                 when (result) {
                     is Resource.Success -> {
                         _state.value = _state.value.copy(
-                            characters = if (page == 1) result.data ?: emptyList()
-                            else _state.value.characters + (result.data ?: emptyList()),
+                            characters = if (page == 1) result.data?.characters ?: emptyList()
+                            else _state.value.characters + (result.data?.characters ?: emptyList()),
                             isLoading = false,
                             isLoadingMore = false,
-                            error = ""
+                            error = "",
+                            hasNextPage = result.data?.hasNextPage ?: false
                         )
                     }
 
@@ -94,30 +96,30 @@ class CharacterListViewModel @Inject constructor(
 
         _state.value = _state.value.copy(
             searchQuery = query,
-            currentPage = 1
+            currentPage = 1,
         )
 
         searchJob = viewModelScope.launch {
             delay(500L)
+            _state.value = _state.value.copy(
+                characters = emptyList(),
+                hasNextPage = true
+            )
 
             getCharacters(query = query)
         }
     }
 
     private fun loadMoreCharacters() {
-        if (_state.value.isLoadingMore) return
+        if (_state.value.isLoadingMore || !_state.value.hasNextPage || _state.value.error.isNotBlank()) return
 
         val nextPage = _state.value.currentPage + 1
         _state.value = _state.value.copy(currentPage = nextPage)
         getCharacters(nextPage, _state.value.searchQuery)
     }
 
-    private fun refreshCharacters() {
-        _state.value = _state.value.copy(
-            currentPage = 1,
-            searchQuery = ""
-        )
-        getCharacters()
+    private fun retryCharacters() {
+        getCharacters(page = _state.value.currentPage, query = _state.value.searchQuery)
     }
 
 }
@@ -125,5 +127,5 @@ class CharacterListViewModel @Inject constructor(
 sealed class CharacterListEvent {
     data class Search(val query: String) : CharacterListEvent()
     object LoadMore : CharacterListEvent()
-    object Refresh : CharacterListEvent()
+    object Retry : CharacterListEvent()
 }

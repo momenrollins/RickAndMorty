@@ -3,6 +3,7 @@ package com.momen.rickandmorty.data.repository
 import com.momen.rickandmorty.data.api.RickMortyApi
 import com.momen.rickandmorty.data.mapper.toCharacter
 import com.momen.rickandmorty.domain.model.Character
+import com.momen.rickandmorty.domain.model.CharacterListResult
 import com.momen.rickandmorty.domain.util.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -31,11 +32,17 @@ class CharacterRepositoryImpl @Inject constructor(
     override suspend fun searchCharacters(
         name: String,
         page: Int
-    ): Flow<Resource<List<Character>>> = flow {
+    ): Flow<Resource<CharacterListResult>> = flow {
         try {
             emit(Resource.Loading())
-            val characters = api.searchCharacters(name, page).results.map { it.toCharacter() }
-            emit(Resource.Success(characters))
+            val response = api.searchCharacters(name, page)
+            val characters = response.results.map { it.toCharacter() }
+            val characterListResult = CharacterListResult(
+                characters = characters,
+                hasNextPage = response.info.next != null,
+                currentPage = page
+            )
+            emit(Resource.Success(characterListResult))
         } catch (e: IOException) {
             emit(Resource.Error("Couldn't reach server. Check your internet connection."))
         } catch (e: HttpException) {
