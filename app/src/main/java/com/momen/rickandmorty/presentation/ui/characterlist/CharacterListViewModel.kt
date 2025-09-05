@@ -1,11 +1,11 @@
 package com.momen.rickandmorty.presentation.ui.characterlist
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.momen.rickandmorty.domain.model.Character
-import com.momen.rickandmorty.domain.usecase.GetCharactersUseCase
 import com.momen.rickandmorty.domain.usecase.SearchCharactersUseCase
 import com.momen.rickandmorty.domain.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +27,6 @@ data class CharacterListState(
 
 @HiltViewModel
 class CharacterListViewModel @Inject constructor(
-    private val getCharactersUseCase: GetCharactersUseCase,
     private val searchCharactersUseCase: SearchCharactersUseCase
 ) : ViewModel() {
 
@@ -56,9 +55,9 @@ class CharacterListViewModel @Inject constructor(
         }
     }
 
-    private fun getCharacters(page: Int = 1) {
+    private fun getCharacters(page: Int = 1, query: String = "") {
         viewModelScope.launch {
-            getCharactersUseCase(page).onEach { result ->
+            searchCharactersUseCase(query, page).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         _state.value = _state.value.copy(
@@ -90,6 +89,7 @@ class CharacterListViewModel @Inject constructor(
     }
 
     private fun searchCharacters(query: String) {
+        Log.d("CharacterListViewModel", "Search query: $query")
         searchJob?.cancel()
 
         _state.value = _state.value.copy(
@@ -97,46 +97,19 @@ class CharacterListViewModel @Inject constructor(
             currentPage = 1
         )
 
-        if (query.isBlank()) {
-            getCharacters()
-            return
-        }
-
         searchJob = viewModelScope.launch {
             delay(500L)
 
-            searchCharactersUseCase(query, 1).onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        _state.value = _state.value.copy(
-                            characters = result.data ?: emptyList(),
-                            isLoading = false,
-                            error = ""
-                        )
-                    }
-
-                    is Resource.Error -> {
-                        _state.value = _state.value.copy(
-                            isLoading = false,
-                            error = result.message ?: "An unexpected error occurred"
-                        )
-                    }
-
-                    is Resource.Loading -> {
-                        _state.value = _state.value.copy(
-                            isLoading = true
-                        )
-                    }
-                }
-            }.launchIn(this)
+            getCharacters(query = query)
         }
     }
+
     private fun loadMoreCharacters() {
-        if (_state.value.isLoadingMore || _state.value.searchQuery.isNotBlank()) return
+        if (_state.value.isLoadingMore) return
 
         val nextPage = _state.value.currentPage + 1
         _state.value = _state.value.copy(currentPage = nextPage)
-        getCharacters(nextPage)
+        getCharacters(nextPage, _state.value.searchQuery)
     }
 
     private fun refreshCharacters() {
