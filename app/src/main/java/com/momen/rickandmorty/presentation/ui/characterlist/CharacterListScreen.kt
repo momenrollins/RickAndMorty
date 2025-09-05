@@ -3,6 +3,7 @@ package com.momen.rickandmorty.presentation.ui.characterlist
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,11 +17,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.momen.rickandmorty.presentation.ui.characterlist.components.CharacterListItem
 import com.momen.rickandmorty.presentation.ui.characterlist.components.LoadingItem
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
+import com.momen.rickandmorty.presentation.ui.characterlist.components.SearchBar
 import kotlinx.coroutines.flow.distinctUntilChanged
 
-@OptIn(FlowPreview::class)
 @Composable
 fun CharacterListScreen(
     navController: NavController,
@@ -54,10 +53,20 @@ fun CharacterListScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        SearchBar(
+            query = state.searchQuery,
+            onQueryChange = { viewModel.onEvent(CharacterListEvent.Search(it)) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+        )
+
         LazyColumn(
             state = listState,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
+
             items(state.characters) { character ->
                 CharacterListItem(
                     character = character,
