@@ -76,7 +76,9 @@ fun CharacterListScreen(
             items(state.characters) { character ->
                 CharacterListItem(
                     character = character,
-                    onItemClick = {}
+                    onItemClick = {
+                        navController.navigate(character)
+                    }
                 )
             }
             if (state.isLoadingMore) {

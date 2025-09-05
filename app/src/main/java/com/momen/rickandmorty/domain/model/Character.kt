@@ -1,5 +1,8 @@
 package com.momen.rickandmorty.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Character(
     val id: Int,
     val name: String,
