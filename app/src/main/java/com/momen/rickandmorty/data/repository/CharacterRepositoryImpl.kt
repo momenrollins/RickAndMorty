@@ -46,7 +46,11 @@ class CharacterRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error("Couldn't reach server. Check your internet connection."))
         } catch (e: HttpException) {
-            emit(Resource.Error("No characters found"))
+            val message = when (e.code()) {
+                404 -> if (name.isNotBlank()) "No characters found for '$name'" else "No characters found"
+                else -> "Something went wrong. Please try again."
+            }
+            emit(Resource.Error(message))
         } catch (e: Exception) {
             emit(Resource.Error(e.message ?: "Unknown error occurred"))
         }

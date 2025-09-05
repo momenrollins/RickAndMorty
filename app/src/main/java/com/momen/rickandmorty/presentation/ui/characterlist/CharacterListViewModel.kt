@@ -20,6 +20,7 @@ data class CharacterListState(
     val isLoading: Boolean = false,
     val characters: List<Character> = emptyList(),
     val error: String = "",
+    val loadMoreError: String = "",
     val searchQuery: String = "",
     val currentPage: Int = 1,
     val isLoadingMore: Boolean = false,
@@ -75,7 +76,9 @@ class CharacterListViewModel @Inject constructor(
                         _state.value = _state.value.copy(
                             isLoading = false,
                             isLoadingMore = false,
-                            error = result.message ?: "An unexpected error occurred"
+                            error = result.message ?: "An unexpected error occurred",
+
+                            characters = if (page == 1 && query.isNotBlank()) emptyList() else _state.value.characters,
                         )
                     }
 
@@ -119,6 +122,9 @@ class CharacterListViewModel @Inject constructor(
     }
 
     private fun retryCharacters() {
+        _state.value = _state.value.copy(
+            error = ""
+        )
         getCharacters(page = _state.value.currentPage, query = _state.value.searchQuery)
     }
 

@@ -84,23 +84,26 @@ fun CharacterListScreen(
                     LoadingItem()
                 }
             }
-        }
-        if (state.error.isNotBlank()) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = state.error,
-                    color = MaterialTheme.colorScheme.error,
-                    textAlign = TextAlign.Center,
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { viewModel.onEvent(CharacterListEvent.Retry) }) {
-                    Text("Retry")
+            if (state.error.isNotBlank()) {
+                item {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = state.error,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = { viewModel.onEvent(CharacterListEvent.Retry) }) {
+                            Text("Retry")
+                        }
+                    }
                 }
             }
+
         }
 
         if (state.isLoading) {
