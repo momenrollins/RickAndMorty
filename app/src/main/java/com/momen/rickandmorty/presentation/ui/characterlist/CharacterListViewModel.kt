@@ -94,7 +94,6 @@ class CharacterListViewModel @Inject constructor(
     }
 
     private fun searchCharacters(query: String) {
-        Log.d("CharacterListViewModel", "Search query: $query")
         searchJob?.cancel()
 
         _state.value = _state.value.copy(
