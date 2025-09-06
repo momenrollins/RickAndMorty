@@ -103,6 +103,11 @@ fun CharacterListScreen(
                     }
                 }
             }
+            if (!state.hasNextPage) {
+                item {
+                    Text("No more characters to load")
+                }
+            }
 
         }
 
