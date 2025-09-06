@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,9 +44,8 @@ fun CharacterListScreen(
         }
             .distinctUntilChanged()
             .collect { (totalItemsCount, lastVisibleItemIndex) ->
-                if (lastVisibleItemIndex >= totalItemsCount - 3 && // within last 3
-                    !state.isLoadingMore &&
-                    state.searchQuery.isBlank()
+                if (lastVisibleItemIndex >= totalItemsCount - 3
+                    && !state.isLoadingMore
                 ) {
                     viewModel.onEvent(CharacterListEvent.LoadMore)
                 }
@@ -109,9 +107,7 @@ fun CharacterListScreen(
         }
 
         if (state.isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+            LoadingItem()
         }
     }
 }

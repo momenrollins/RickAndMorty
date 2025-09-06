@@ -2,6 +2,7 @@ package com.momen.rickandmorty.data.repository
 
 import com.momen.rickandmorty.data.api.RickMortyApi
 import com.momen.rickandmorty.data.mapper.toCharacter
+import com.momen.rickandmorty.data.mapper.toCharacterListResult
 import com.momen.rickandmorty.domain.model.Character
 import com.momen.rickandmorty.domain.model.CharacterListResult
 import com.momen.rickandmorty.domain.util.Resource
@@ -36,12 +37,7 @@ class CharacterRepositoryImpl @Inject constructor(
         try {
             emit(Resource.Loading())
             val response = api.searchCharacters(name, page)
-            val characters = response.results.map { it.toCharacter() }
-            val characterListResult = CharacterListResult(
-                characters = characters,
-                hasNextPage = response.info.next != null,
-                currentPage = page
-            )
+            val characterListResult = response.toCharacterListResult()
             emit(Resource.Success(characterListResult))
         } catch (e: IOException) {
             emit(Resource.Error("Couldn't reach server. Check your internet connection."))
